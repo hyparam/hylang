@@ -1,38 +1,41 @@
 import os
+import random
 import pyarrow.parquet as pq
 from sklearn.feature_extraction.text import HashingVectorizer
-from sklearn.linear_model import SGDClassifier  # Example classifier
-from tqdm import tqdm  # Import tqdm for the progress bar
+from sklearn.linear_model import SGDClassifier
+from tqdm import tqdm
 
-def process_files(directory):
+def process_files(directory, sample_percentage=10):
     vectorizer = HashingVectorizer(n_features=2**20, alternate_sign=False)
-    classifier = SGDClassifier()  # Just an example classifier
+    classifier = SGDClassifier()  # Example classifier
 
-    # Loop through all files in the directory
-    for filename in tqdm(os.listdir(directory), desc="Processing files"):
-        if filename.endswith('.parquet'):
-            filepath = os.path.join(directory, filename)
-            parquet_file = pq.ParquetFile(filepath)
+    # List all files and sample from them
+    all_files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
+    sampled_files = random.sample(all_files, k=int(len(all_files) * (sample_percentage / 100)))
 
-            # Prepare to show progress for batches within each file
-            total_batches = parquet_file.metadata.num_row_groups
-            progress = tqdm(total=total_batches, desc=f"Reading {filename}", leave=False)
+    # Loop through the sampled files
+    for filename in tqdm(sampled_files, desc="Processing files"):
+        filepath = os.path.join(directory, filename)
+        parquet_file = pq.ParquetFile(filepath)
 
-            # Read in batches
-            for batch in parquet_file.iter_batches(batch_size=1000, columns=['content']):
-                df = batch.to_pandas()
-                X = vectorizer.transform(df['content'])
-                # Example: training a model with dummy labels (uncomment and replace as necessary)
-                # Y = df['label']  # Uncomment and adjust if you have a label column
-                # classifier.partial_fit(X, Y, classes=np.unique(Y))  # Uncomment for supervised learning
-                # For unsupervised or other processing, just handle X
-                progress.update(1)  # Update the inner progress bar after each batch
+        # Progress bar for batches within each file
+        total_batches = parquet_file.metadata.num_row_groups
+        progress = tqdm(total=total_batches, desc=f"Reading {filename}", leave=False)
 
-            progress.close()  # Ensure the inner progress bar is properly closed after finishing a file
+        # Read in batches
+        for batch in parquet_file.iter_batches(batch_size=1000, columns=['content']):
+            df = batch.to_pandas()
+            X = vectorizer.transform(df['content'])
+            # Example: training a model with dummy labels (uncomment and replace as necessary)
+            # Y = df['label']
+            # classifier.partial_fit(X, Y, classes=np.unique(Y))
+            progress.update(1)
 
-    # Save the model or do additional processing if needed
-    # joblib.dump(classifier, 'model.pkl')  # Example to save the trained model
+        progress.close()
+
+    # Optionally save the model or do additional processing
+    # joblib.dump(classifier, 'model.pkl')
 
 # Directory containing parquet files
 directory_path = 'starcoderdata/javascript/'
-process_files(directory_path)
+process_files(directory_path, sample_percentage=10)
