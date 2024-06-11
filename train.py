@@ -1,8 +1,10 @@
+import os
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import pyarrow.parquet as pq
+import joblib
 
 def load_top_tfidf_words(tfidf_parquet_path, top_n=1000):
     # Load TF-IDF scores from a Parquet file
@@ -45,17 +47,25 @@ def train_decision_tree(features, labels):
     print(f'Accuracy: {accuracy:.2%}')
     return clf
 
-# Path to the TF-IDF scores Parquet file
+def save_classifier(classifier, filename):
+    joblib.dump(classifier, filename)
+
+def load_classifier(filename):
+    return joblib.load(filename)
+
+# Paths
 tfidf_parquet_path = 'output/tfidf_scores_sorted.parquet'
-
-# Directory containing programming language data
 data_directory = 'starcoderdata/'
+classifier_path = 'saved_model/classifier.joblib'
 
-# Load top 1000 TF-IDF words
+# Load and prepare data
 top_words = load_top_tfidf_words(tfidf_parquet_path, 1000)
-
-# Create feature matrix and labels
 features, labels = create_feature_matrix(data_directory, top_words)
 
-# Train the Decision Tree classifier
+# Train and save the classifier
 classifier = train_decision_tree(features, labels)
+save_classifier(classifier, classifier_path)
+
+# Optionally load the classifier
+# loaded_classifier = load_classifier(classifier_path)
+# Use loaded_classifier for further evaluation or prediction
