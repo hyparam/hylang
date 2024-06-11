@@ -1,13 +1,12 @@
 import os
-import random
+import pandas as pd
 import pyarrow.parquet as pq
-from sklearn.feature_extraction.text import HashingVectorizer
-from sklearn.linear_model import SGDClassifier
+import random
+from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
 
-def process_files(directory, sample_percentage=1.0):
-    vectorizer = HashingVectorizer(n_features=2**20, alternate_sign=False)
-    classifier = SGDClassifier()  # Example classifier
+def process_files(directory, output_path, sample_percentage=1.0):
+    vectorizer = TfidfVectorizer()
 
     # List all files
     all_files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
@@ -21,34 +20,32 @@ def process_files(directory, sample_percentage=1.0):
         files_to_process = all_files
         process_desc = "Processing all files"
 
-    # Loop through the selected files
+    # Collect all documents to compute global TF-IDF
+    documents = []
     for filename in tqdm(files_to_process, desc=process_desc):
         filepath = os.path.join(directory, filename)
         parquet_file = pq.ParquetFile(filepath)
 
-        # Progress bar for batches within each file
-        total_batches = parquet_file.metadata.num_row_groups
-        progress = tqdm(total=total_batches, desc=f"Reading {filename}", leave=False)
-
-        # Read in batches
         for batch in parquet_file.iter_batches(batch_size=1000, columns=['content']):
             df = batch.to_pandas()
-            X = vectorizer.transform(df['content'])
-            # Example: training a model with dummy labels (uncomment and replace as necessary)
-            # Y = df['label']
-            # classifier.partial_fit(X, Y, classes=np.unique(Y))
-            progress.update(1)
+            documents.extend(df['content'].tolist())
 
-        progress.close()
+    # Fit TF-IDF vectorizer
+    tfidf_matrix = vectorizer.fit_transform(documents)
+    feature_names = vectorizer.get_feature_names_out()
 
-    # Optionally save the model or do additional processing
-    # joblib.dump(classifier, 'model.pkl')
+    # Create a DataFrame of features and their scores
+    # Sum TF-IDF scores across all documents
+    scores = tfidf_matrix.sum(axis=0).A1
+    score_data = {'Token': feature_names, 'Score': scores}
+    df_scores = pd.DataFrame(score_data)
 
-# Directory containing parquet files
+    # Save to a Parquet file
+    df_scores.to_parquet(os.path.join(output_path, 'tfidf_scores.parquet'))
+
+# Directory containing parquet files and output directory
 directory_path = 'starcoderdata/javascript/'
+output_path = 'output/'
 
-# Run full dataset
-# process_files(directory_path, sample_percentage=1.0)
-
-# Run sampled dataset (e.g., 10% of the files)
-process_files(directory_path, sample_percentage=0.1)
+# Run TF-IDF
+process_files(directory_path, output_path, sample_percentage=0.1)
