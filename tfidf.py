@@ -5,16 +5,24 @@ from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.linear_model import SGDClassifier
 from tqdm import tqdm
 
-def process_files(directory, sample_percentage=10):
+def process_files(directory, sample_percentage=1.0):
     vectorizer = HashingVectorizer(n_features=2**20, alternate_sign=False)
     classifier = SGDClassifier()  # Example classifier
 
-    # List all files and sample from them
+    # List all files
     all_files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
-    sampled_files = random.sample(all_files, k=int(len(all_files) * (sample_percentage / 100)))
 
-    # Loop through the sampled files
-    for filename in tqdm(sampled_files, desc="Processing files"):
+    # Determine files to process based on sample_percentage
+    if sample_percentage < 1.0:
+        num_files_to_sample = int(len(all_files) * sample_percentage)
+        files_to_process = random.sample(all_files, k=num_files_to_sample)
+        process_desc = f"Processing {int(sample_percentage * 100)}% sampled files"
+    else:
+        files_to_process = all_files
+        process_desc = "Processing all files"
+
+    # Loop through the selected files
+    for filename in tqdm(files_to_process, desc=process_desc):
         filepath = os.path.join(directory, filename)
         parquet_file = pq.ParquetFile(filepath)
 
@@ -38,4 +46,9 @@ def process_files(directory, sample_percentage=10):
 
 # Directory containing parquet files
 directory_path = 'starcoderdata/javascript/'
-process_files(directory_path, sample_percentage=10)
+
+# Run full dataset
+# process_files(directory_path, sample_percentage=1.0)
+
+# Run sampled dataset (e.g., 10% of the files)
+process_files(directory_path, sample_percentage=0.1)
