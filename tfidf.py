@@ -40,8 +40,11 @@ def process_files(directory, output_path, sample_percentage=1.0):
     score_data = {'Token': feature_names, 'Score': scores}
     df_scores = pd.DataFrame(score_data)
 
+    # Sort the DataFrame by scores in descending order
+    df_scores_sorted = df_scores.sort_values(by='Score', ascending=False)
+
     # Save to a Parquet file
-    df_scores.to_parquet(os.path.join(output_path, 'tfidf_scores.parquet'))
+    df_scores_sorted.to_parquet(os.path.join(output_path, 'tfidf_scores_sorted.parquet'))
 
 # Directory containing parquet files and output directory
 directory_path = 'starcoderdata/javascript/'

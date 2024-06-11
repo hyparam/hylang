@@ -7,7 +7,7 @@ def model(input_text):
     """
     Naive language classification model that always predicts 'python'.
     """
-    return 'python'
+    return 'markdown'
 
 def evaluate_model(base_directory):
     all_predictions = []
