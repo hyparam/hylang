@@ -25,7 +25,7 @@ class SimpleLinearNN(nn.Module):
     def forward(self, x):
         return self.linear(x)
 
-def train_model(features, labels, input_dim, output_dim, epochs=10, batch_size=32, learning_rate=0.01):
+def train_model(features, labels, input_dim, output_dim, epochs=20, batch_size=32, learning_rate=0.01):
     print("Training the neural network...")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     

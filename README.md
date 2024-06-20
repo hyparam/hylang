@@ -4,7 +4,9 @@ A stupidly small and fast programming language detection model.
 
 ## tfidf.py
 
-Generates `output/tfidf_scores_sorted_1000.parquet` with the top 1000 tfidf words from all documents.
+Generates `output/tfidf_scores_top1000.parquet` with the top 1000 tfidf words from all documents.
+
+97m58s
 
 ## featurize.py
 
