@@ -21,21 +21,25 @@ def create_feature_matrix(data_directory, top_words):
     writer = None
     
     try:
+        # Subdirectories for each programming language
         for language in tqdm(os.listdir(data_directory), desc="Processing Languages", unit="lang"):
             language_dir = os.path.join(data_directory, language)
             files = [f for f in os.listdir(language_dir) if f.endswith('.parquet')]
 
+            # Process each file in the language directory
             for filename in tqdm(files, desc=f"Files in {language}", leave=False, unit="file"):
                 filepath = os.path.join(language_dir, filename)
                 df = pd.read_parquet(filepath)
                 # Sample 1% of the rows
                 df_sampled = df.sample(frac=0.01, random_state=1) if len(df) > 100 else df  # Ensure there's enough rows to sample
                 if 'content' in df_sampled.columns:
+                    # Transform content to feature vectors
                     features = vectorizer.transform(df_sampled['content']).toarray()
                     labels = pd.DataFrame({'programming_language': [language]*len(df_sampled)}, index=df_sampled.index)
                     feature_df = pd.DataFrame(features, columns=top_words, index=df_sampled.index)
                     result_df = pd.concat([labels, feature_df], axis=1)
 
+                    # Convert dataframe to Parquet table and write to file
                     table = pa.Table.from_pandas(result_df, schema=schema, preserve_index=False)
                     if writer is None:
                         writer = pq.ParquetWriter(output_path, table.schema, compression='snappy')
@@ -45,5 +49,6 @@ def create_feature_matrix(data_directory, top_words):
         if writer:
             writer.close()
 
+# Load top TF-IDF words and create feature matrix
 top_words = load_top_tfidf_words(tfidf_parquet_path)
 create_feature_matrix(data_directory, top_words)

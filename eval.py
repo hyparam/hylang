@@ -19,7 +19,7 @@ def evaluate_model(base_directory):
     # Get all language directories
     language_dirs = [d for d in os.listdir(base_directory) if os.path.isdir(os.path.join(base_directory, d))]
 
-    # Progress bar for languages
+    # Subdirectories for each programming language
     for language in tqdm(language_dirs, desc="Languages", unit="lang"):
         language_dir = os.path.join(base_directory, language)
 

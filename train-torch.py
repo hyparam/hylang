@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import joblib
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,7 +10,7 @@ from sklearn.metrics import accuracy_score
 import pyarrow.parquet as pq
 from tqdm import tqdm
 
-# Paths
+# Paths for data and model storage
 tfidf_parquet_path = 'output/tfidf_scores_sorted_1000.parquet'
 data_directory = 'starcoderdata/'
 classifier_path = 'output/classifier.pth'
@@ -23,11 +24,13 @@ def create_feature_matrix(data_directory, top_words):
     all_features = []
     all_labels = []
     
+    # Subdirectories for each programming language
     languages = [d for d in os.listdir(data_directory) if os.path.isdir(os.path.join(data_directory, d))]
     for language in tqdm(languages, desc="Processing Languages"):
         language_dir = os.path.join(data_directory, language)
         files = [f for f in os.listdir(language_dir) if f.endswith('.parquet')]
         
+        # Process each file in the language directory
         for filename in tqdm(files, desc=f"Files in {language}", leave=False):
             filepath = os.path.join(language_dir, filename)
             parquet_file = pq.ParquetFile(filepath)
@@ -50,7 +53,7 @@ class SimpleLinearNN(nn.Module):
     def forward(self, x):
         return self.linear(x)
 
-def train_neural_network(features, labels, input_dim, output_dim, epochs=10, batch_size=32, learning_rate=0.01):
+def train_model(features, labels, input_dim, output_dim, epochs=10, batch_size=32, learning_rate=0.01):
     print("Training the neural network...")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
@@ -67,7 +70,7 @@ def train_neural_network(features, labels, input_dim, output_dim, epochs=10, bat
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     
-    # Training loop
+    # Training loop with batch processing
     for epoch in range(epochs):
         model.train()
         for i in range(0, len(X_train), batch_size):
@@ -82,7 +85,7 @@ def train_neural_network(features, labels, input_dim, output_dim, epochs=10, bat
         
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}")
     
-    # Evaluation
+    # Evaluation on test set
     model.eval()
     with torch.no_grad():
         outputs = model(X_test)
@@ -96,9 +99,9 @@ def train_neural_network(features, labels, input_dim, output_dim, epochs=10, bat
 top_words = load_top_tfidf_words(tfidf_parquet_path, 1000)
 features, labels = create_feature_matrix(data_directory, top_words)
 
-# Train and save the classifier
+# Train and save the classifier model and label encoder
 input_dim = len(top_words)
 output_dim = len(set(labels))
-model, label_encoder = train_neural_network(features, labels, input_dim, output_dim)
+model, label_encoder = train_model(features, labels, input_dim, output_dim)
 torch.save(model.state_dict(), classifier_path)
 joblib.dump(label_encoder, 'output/label_encoder.joblib')

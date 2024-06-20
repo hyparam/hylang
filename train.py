@@ -7,7 +7,7 @@ import pyarrow.parquet as pq
 import joblib
 from tqdm import tqdm
 
-# Paths
+# Paths for data and model storage
 tfidf_parquet_path = 'output/tfidf_scores_sorted_1000.parquet'
 data_directory = 'starcoderdata/'
 classifier_path = 'output/classifier.joblib'
@@ -20,12 +20,14 @@ def load_top_tfidf_words(tfidf_parquet_path, top_n=1000):
 def create_feature_matrix(data_directory, top_words):
     all_features = []
     all_labels = []
-    
+
+    # Subdirectories for each programming language
     languages = [d for d in os.listdir(data_directory) if os.path.isdir(os.path.join(data_directory, d))]
     for language in tqdm(languages, desc="Processing Languages"):
         language_dir = os.path.join(data_directory, language)
         files = [f for f in os.listdir(language_dir) if f.endswith('.parquet')]
-        
+
+        # Process each file in the language directory
         for filename in tqdm(files, desc=f"Files in {language}", leave=False):
             filepath = os.path.join(language_dir, filename)
             parquet_file = pq.ParquetFile(filepath)

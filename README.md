@@ -1,3 +1,7 @@
+# HyLang
+
+A stupidly small and fast programming language detection model.
+
 ## tfidf.py
 
 Generates `output/tfidf_scores_sorted_1000.parquet` with the top 1000 tfidf words from all documents.
