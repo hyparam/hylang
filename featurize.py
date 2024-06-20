@@ -28,10 +28,12 @@ def create_feature_matrix(data_directory, top_words):
             for filename in tqdm(files, desc=f"Files in {language}", leave=False, unit="file"):
                 filepath = os.path.join(language_dir, filename)
                 df = pd.read_parquet(filepath)
-                if 'content' in df.columns:
-                    features = vectorizer.transform(df['content']).toarray()
-                    labels = pd.DataFrame({'programming_language': [language]*len(df)}, index=df.index)
-                    feature_df = pd.DataFrame(features, columns=top_words, index=df.index)
+                # Sample 1% of the rows
+                df_sampled = df.sample(frac=0.01, random_state=1) if len(df) > 100 else df  # Ensure there's enough rows to sample
+                if 'content' in df_sampled.columns:
+                    features = vectorizer.transform(df_sampled['content']).toarray()
+                    labels = pd.DataFrame({'programming_language': [language]*len(df_sampled)}, index=df_sampled.index)
+                    feature_df = pd.DataFrame(features, columns=top_words, index=df_sampled.index)
                     result_df = pd.concat([labels, feature_df], axis=1)
 
                     table = pa.Table.from_pandas(result_df, schema=schema, preserve_index=False)
