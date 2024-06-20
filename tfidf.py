@@ -44,7 +44,7 @@ def process_files(directory, output_path, sample_percentage=1.0):
     df_scores_sorted = df_scores.sort_values(by='Score', ascending=False)
 
     # Save to a Parquet file
-    df_scores_sorted.to_parquet(os.path.join(output_path, 'tfidf_scores_sorted.parquet'))
+    # df_scores_sorted.to_parquet(os.path.join(output_path, 'tfidf_scores_sorted.parquet'))
 
     # Save top 1000 tokens to Parquet file
     df_scores_sorted.head(1000).to_parquet(os.path.join(output_path, 'tfidf_scores_top1000.parquet'))

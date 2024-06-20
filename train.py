@@ -8,7 +8,7 @@ import joblib
 from tqdm import tqdm
 
 # Paths
-tfidf_parquet_path = 'output/tfidf_scores_sorted.parquet'
+tfidf_parquet_path = 'output/tfidf_scores_sorted_1000.parquet'
 data_directory = 'starcoderdata/'
 classifier_path = 'output/classifier.joblib'
 
