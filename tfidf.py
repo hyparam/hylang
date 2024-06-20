@@ -2,11 +2,17 @@ import os
 import pandas as pd
 import pyarrow.parquet as pq
 import random
+import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
 
+def custom_code_tokenizer(code):
+    # Define a regular expression to match code tokens
+    token_pattern = re.compile(r'\w+|[{}()\[\];,]')
+    return token_pattern.findall(code)
+
 def process_files(directory, output_path, sample_percentage=1.0):
-    vectorizer = TfidfVectorizer()
+    vectorizer = TfidfVectorizer(tokenizer=custom_code_tokenizer)
 
     # List all files
     all_files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
@@ -31,6 +37,7 @@ def process_files(directory, output_path, sample_percentage=1.0):
             documents.extend(df['content'].tolist())
 
     # Fit TF-IDF vectorizer
+    print("Fitting TF-IDF vectorizer...")
     tfidf_matrix = vectorizer.fit_transform(documents)
     feature_names = vectorizer.get_feature_names_out()
 
@@ -41,6 +48,7 @@ def process_files(directory, output_path, sample_percentage=1.0):
     df_scores = pd.DataFrame(score_data)
 
     # Sort the DataFrame by scores in descending order
+    print("Sorting tokens by TF-IDF scores...")
     df_scores_sorted = df_scores.sort_values(by='Score', ascending=False)
 
     # Save to a Parquet file
