@@ -46,9 +46,12 @@ def process_files(directory, output_path, sample_percentage=1.0):
     # Save to a Parquet file
     df_scores_sorted.to_parquet(os.path.join(output_path, 'tfidf_scores_sorted.parquet'))
 
+    # Save top 1000 tokens to Parquet file
+    df_scores_sorted.head(1000).to_parquet(os.path.join(output_path, 'tfidf_scores_top1000.parquet'))
+
 # Directory containing parquet files and output directory
 directory_path = 'starcoderdata/javascript/'
 output_path = 'output/'
 
 # Run TF-IDF
-process_files(directory_path, output_path, sample_percentage=0.1)
+process_files(directory_path, output_path, sample_percentage=1.0)

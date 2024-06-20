@@ -2,6 +2,9 @@ import os
 import pyarrow.parquet as pq
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
+import joblib
+
+classifier = joblib.load(classifier_path)
 
 def model(input_text):
     """

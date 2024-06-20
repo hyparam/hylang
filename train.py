@@ -7,6 +7,11 @@ import pyarrow.parquet as pq
 import joblib
 from tqdm import tqdm
 
+# Paths
+tfidf_parquet_path = 'output/tfidf_scores_sorted.parquet'
+data_directory = 'starcoderdata/'
+classifier_path = 'output/classifier.joblib'
+
 def load_top_tfidf_words(tfidf_parquet_path, top_n=1000):
     df_tfidf = pd.read_parquet(tfidf_parquet_path)
     top_words = df_tfidf.nlargest(top_n, 'Score')['Token'].tolist()
@@ -43,25 +48,10 @@ def train_decision_tree(features, labels):
     print(f'Accuracy: {accuracy:.2%}')
     return clf
 
-def save_classifier(classifier, filename):
-    joblib.dump(classifier, filename)
-
-def load_classifier(filename):
-    return joblib.load(filename)
-
-# Paths
-tfidf_parquet_path = 'output/tfidf_scores_sorted.parquet'
-data_directory = 'starcoderdata/'
-classifier_path = 'saved_model/classifier.joblib'
-
 # Load and prepare data
 top_words = load_top_tfidf_words(tfidf_parquet_path, 1000)
 features, labels = create_feature_matrix(data_directory, top_words)
 
 # Train and save the classifier
 classifier = train_decision_tree(features, labels)
-save_classifier(classifier, classifier_path)
-
-# Optionally load the classifier
-# loaded_classifier = load_classifier(classifier_path)
-# Use loaded_classifier for further evaluation or prediction
+joblib.dump(classifier, classifier_path)
