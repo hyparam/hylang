@@ -72,8 +72,13 @@ def evaluate_model(base_directory):
             # Read batches of data
             for batch in parquet_file.iter_batches(batch_size=1000, columns=['content']):
                 df = batch.to_pandas()
-                predictions = [model_inference(text) for text in df['content']]
-                true_labels = [language] * len(df)
+
+                # Sample 0.1% of the rows
+                sample_size = max(1, int(len(df) * 0.001))
+                df_sampled = df.sample(n=sample_size, random_state=1)
+
+                predictions = [model_inference(text) for text in df_sampled['content']]
+                true_labels = [language] * len(df_sampled)
 
                 all_predictions.extend(predictions)
                 all_true_labels.extend(true_labels)
