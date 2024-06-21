@@ -6,8 +6,8 @@ from tqdm import tqdm
 from sklearn.feature_extraction.text import CountVectorizer
 
 # Paths
-tfidf_parquet_path = 'output/tfidf_scores_sorted_1000.parquet'
-data_directory = 'starcoderdata/'
+token_parquet_path = 'output/top_tokens.parquet'
+data_directory = 'starcoderdata-lite/'
 output_path = 'output/featurized_data.parquet'
 
 def load_top_tfidf_words(tfidf_parquet_path, top_n=1000):
@@ -48,5 +48,5 @@ def create_feature_matrix(data_directory, top_words):
             writer.close()
 
 # Load top TF-IDF words and create feature matrix
-top_words = load_top_tfidf_words(tfidf_parquet_path)
+top_words = load_top_tfidf_words(token_parquet_path)
 create_feature_matrix(data_directory, top_words)

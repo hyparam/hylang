@@ -49,7 +49,7 @@ def process_files(directory, output_path):
     # df_scores_sorted.to_parquet(os.path.join(output_path, 'tfidf_scores_sorted.parquet'))
 
     # Save top 1000 tokens to Parquet file
-    df_scores_sorted.head(1000).to_parquet(os.path.join(output_path, 'tfidf_scores_top1000.parquet'))
+    df_scores_sorted.head(1000).to_parquet(os.path.join(output_path, 'top_tokens.parquet'))
 
 # Run TF-IDF
 process_files(directory_path, output_path)

@@ -11,8 +11,8 @@ import pyarrow.parquet as pq
 from tqdm import tqdm
 
 # Paths for data and model storage
-tfidf_parquet_path = 'output/tfidf_scores_top1000.parquet'
-data_directory = 'starcoderdata/'
+token_parquet_path = 'output/top_tokens.parquet'
+data_directory = 'starcoderdata-lite/'
 classifier_path = 'output/classifier.pth'
 
 class SimpleLinearNN(nn.Module):

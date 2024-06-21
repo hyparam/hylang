@@ -11,7 +11,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 # Paths for data and model storage
 classifier_path = 'output/classifier.pth'
 label_encoder_path = 'output/label_encoder.joblib'
-tfidf_parquet_path = 'output/tfidf_scores_top1000.parquet'
+token_parquet_path = 'output/top_tokens.parquet'
+data_directory = 'starcoderdata-lite/'
 
 # Load the label encoder
 label_encoder = joblib.load(label_encoder_path)
@@ -35,7 +36,7 @@ model.load_state_dict(torch.load(classifier_path))
 model.eval()  # Set the model to evaluation mode
 
 # Load the top TF-IDF words to initialize the vectorizer
-df_tfidf = pd.read_parquet(tfidf_parquet_path)
+df_tfidf = pd.read_parquet(token_parquet_path)
 top_words = df_tfidf.nlargest(1000, 'Score')['Token'].tolist()
 vectorizer = CountVectorizer(vocabulary=top_words, binary=True)
 
@@ -82,8 +83,5 @@ def evaluate_model(base_directory):
     accuracy = accuracy_score(all_true_labels, all_predictions)
     print(f"Overall Accuracy: {accuracy:.2%}")
 
-# Base directory containing language-specific subdirectories
-base_directory = 'starcoderdata/'
-
 # Evaluate the model
-evaluate_model(base_directory)
+evaluate_model(data_directory)

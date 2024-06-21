@@ -4,7 +4,7 @@ A stupidly small and fast programming language detection model.
 
 ## tfidf.py
 
-Generates `output/tfidf_scores_top1000.parquet` with the top 1000 tfidf words from all documents.
+Generates `output/top_tokens.parquet` with the top 1000 tfidf words from all documents.
 Uses a custom tokenizer to get code-like tokens including punctuation `{`, `}`, `;`, etc.
 
 97m58s
