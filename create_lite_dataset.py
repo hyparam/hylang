@@ -10,6 +10,13 @@ output_directory = 'starcoderdata-lite/'
 # Create output directory if it doesn't exist
 os.makedirs(output_directory, exist_ok=True)
 
+# Whitelist of languages to include
+selected_languages = [
+    'assembly', 'c', 'cpp', 'c-sharp', 'css', 'cuda', 'go', 'html', 'java', 'javascript',
+    'json', 'kotlin', 'lua', 'markdown', 'matlab', 'php', 'protocol-buffer', 'python',
+    'r', 'ruby', 'rust', 'scala', 'shell', 'sql', 'tex', 'typescript', 'yaml'
+]
+
 def sample_and_save_parquet(language, input_files, output_file, sample_fraction=0.0001):
     sampled_data = []
 
@@ -32,13 +39,17 @@ def sample_and_save_parquet(language, input_files, output_file, sample_fraction=
     else:
         print(f"No data sampled for {language}")
 
-# Get all language directories
-language_dirs = [d for d in os.listdir(data_directory) if os.path.isdir(os.path.join(data_directory, d))]
+# Get all language directories and filter by whitelist
+language_dirs = [d for d in os.listdir(data_directory) if os.path.isdir(os.path.join(data_directory, d)) and d in selected_languages]
 
 # Process each language directory
 for language in tqdm(language_dirs, desc="Languages"):
     language_dir = os.path.join(data_directory, language)
-    output_file = os.path.join(output_directory, f"{language}.parquet")
+    output_language_dir = os.path.join(output_directory, language)
+    output_file = os.path.join(output_language_dir, f"{language}.parquet")
+
+    # Create nested directory for the language if it doesn't exist
+    os.makedirs(output_language_dir, exist_ok=True)
 
     # Collect all Parquet files for the current language
     files = [f for f in os.listdir(language_dir) if f.endswith('.parquet')]

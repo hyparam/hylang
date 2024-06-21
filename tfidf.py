@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
 
 # Directory containing parquet files and output directory
-directory_path = 'starcoderdata/javascript/'
+directory_path = 'starcoderdata-lite/'
 output_path = 'output/'
 
 def custom_code_tokenizer(code):

@@ -2,6 +2,10 @@
 
 A stupidly small and fast programming language detection model.
 
+## create_lite_dataset.py
+
+Generates a sampled version of starcoderdata with 0.01% of the rows from each language.
+
 ## tfidf.py
 
 Generates `output/top_tokens.parquet` with the top 1000 tfidf words from all documents.
@@ -19,5 +23,6 @@ Trains a single layer linear torch model.
 
 ## eval.py
 
-return 'python' => 6.23%
-return 'markdown' => 10.18%
+return 'python' => 8.16%
+return 'markdown' => 13.32%
+one layer net => 91.45%
