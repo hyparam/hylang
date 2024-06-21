@@ -1,34 +1,28 @@
 import os
 import pandas as pd
 import pyarrow.parquet as pq
-import random
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
+
+# Directory containing parquet files and output directory
+directory_path = 'starcoderdata/javascript/'
+output_path = 'output/'
 
 def custom_code_tokenizer(code):
     # Define a regular expression to match code tokens
     token_pattern = re.compile(r'\w+|[{}()\[\];,]')
     return token_pattern.findall(code)
 
-def process_files(directory, output_path, sample_percentage=1.0):
+def process_files(directory, output_path):
     vectorizer = TfidfVectorizer(tokenizer=custom_code_tokenizer)
 
     # List all files
     all_files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
 
-    # Determine files to process based on sample_percentage
-    if sample_percentage < 1.0:
-        num_files_to_sample = int(len(all_files) * sample_percentage)
-        files_to_process = random.sample(all_files, k=num_files_to_sample)
-        process_desc = f"Processing {int(sample_percentage * 100)}% sampled files"
-    else:
-        files_to_process = all_files
-        process_desc = "Processing all files"
-
     # Collect all documents to compute global TF-IDF
     documents = []
-    for filename in tqdm(files_to_process, desc=process_desc):
+    for filename in tqdm(all_files, desc="Processing files", unit="file"):
         filepath = os.path.join(directory, filename)
         parquet_file = pq.ParquetFile(filepath)
 
@@ -57,9 +51,5 @@ def process_files(directory, output_path, sample_percentage=1.0):
     # Save top 1000 tokens to Parquet file
     df_scores_sorted.head(1000).to_parquet(os.path.join(output_path, 'tfidf_scores_top1000.parquet'))
 
-# Directory containing parquet files and output directory
-directory_path = 'starcoderdata/javascript/'
-output_path = 'output/'
-
 # Run TF-IDF
-process_files(directory_path, output_path, sample_percentage=1.0)
+process_files(directory_path, output_path)
