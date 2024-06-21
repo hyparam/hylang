@@ -4,10 +4,14 @@ import pyarrow.parquet as pq
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
+from pathlib import Path
 
 # Directory containing parquet files and output directory
 directory_path = 'starcoderdata-lite/'
 output_path = 'output/'
+
+# Create output directory if it doesn't exist
+Path(output_path).mkdir(parents=True, exist_ok=True)
 
 def custom_code_tokenizer(code):
     # Define a regular expression to match code tokens
@@ -18,13 +22,12 @@ def process_files(directory, output_path):
     vectorizer = TfidfVectorizer(tokenizer=custom_code_tokenizer)
 
     # List all files
-    all_files = [f for f in os.listdir(directory) if f.endswith('.parquet')]
+    all_files = [f for f in Path(directory).glob("**/*.parquet")]
 
     # Collect all documents to compute global TF-IDF
     documents = []
     for filename in tqdm(all_files, desc="Processing files", unit="file"):
-        filepath = os.path.join(directory, filename)
-        parquet_file = pq.ParquetFile(filepath)
+        parquet_file = pq.ParquetFile(filename)
 
         for batch in parquet_file.iter_batches(batch_size=1000, columns=['content']):
             df = batch.to_pandas()

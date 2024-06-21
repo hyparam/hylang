@@ -17,7 +17,7 @@ selected_languages = [
     'r', 'ruby', 'rust', 'scala', 'shell', 'sql', 'tex', 'typescript', 'yaml'
 ]
 
-def sample_and_save_parquet(language, input_files, output_file, sample_fraction=0.0001):
+def sample_and_save_parquet(language, input_files, output_file, sample_fraction=0.0002):
     sampled_data = []
 
     for filename in tqdm(input_files, desc=f"Sampling {language}", leave=False):

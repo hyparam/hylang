@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import joblib
 import torch
@@ -7,13 +6,13 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
-import pyarrow.parquet as pq
-from tqdm import tqdm
+import json
 
 # Paths for data and model storage
 token_parquet_path = 'output/top_tokens.parquet'
 data_directory = 'starcoderdata-lite/'
 classifier_path = 'output/classifier.pth'
+params_path = 'output/params.json'
 
 class SimpleLinearNN(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -64,6 +63,21 @@ def train_model(features, labels, input_dim, output_dim, epochs=40, batch_size=3
         _, predicted = torch.max(outputs.data, 1)
         accuracy = accuracy_score(y_test.cpu(), predicted.cpu())
         print(f'Accuracy: {accuracy:.2%}')
+    
+    # Print the weights of the linear layer
+    print("Weights of the linear layer after training:")
+    print(model.linear.weight)
+    print("Biases of the linear layer after training:")
+    print(model.linear.bias)
+    
+    # Save weights and biases to JSON
+    weights_biases = {
+        "weights": model.linear.weight.detach().cpu().numpy().tolist(),
+        "biases": model.linear.bias.detach().cpu().numpy().tolist()
+    }
+    
+    with open(params_path, 'w') as json_file:
+        json.dump(weights_biases, json_file)
     
     return model, le
 
