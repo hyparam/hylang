@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import joblib
 import torch
@@ -6,6 +7,8 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
+import pyarrow.parquet as pq
+from tqdm import tqdm
 import json
 
 # Paths for data and model storage
@@ -24,7 +27,7 @@ class SimpleLinearNN(nn.Module):
     def forward(self, x):
         return self.linear(x)
 
-def train_model(features, labels, input_dim, output_dim, epochs=40, batch_size=32, learning_rate=0.01):
+def train_model(features, labels, tokens, input_dim, output_dim, epochs=40, batch_size=32, learning_rate=0.01):
     print("Training the neural network...")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
@@ -70,14 +73,16 @@ def train_model(features, labels, input_dim, output_dim, epochs=40, batch_size=3
     print("Biases of the linear layer after training:")
     print(model.linear.bias)
     
-    # Save weights and biases to JSON
-    weights_biases = {
+    # Save weights, biases, tokens, and languages to JSON
+    weights_biases_tokens = {
         "weights": model.linear.weight.detach().cpu().numpy().tolist(),
-        "biases": model.linear.bias.detach().cpu().numpy().tolist()
+        "biases": model.linear.bias.detach().cpu().numpy().tolist(),
+        "tokens": tokens,
+        "languages": le.classes_.tolist()
     }
     
     with open(params_path, 'w') as json_file:
-        json.dump(weights_biases, json_file)
+        json.dump(weights_biases_tokens, json_file, indent=2)
     
     return model, le
 
@@ -88,15 +93,22 @@ def load_data(parquet_path):
     features = df.drop(columns=['programming_language'])
     return features, labels
 
-# Load features and labels from parquet file
+# Load tokens
+def load_tokens(parquet_path):
+    df = pd.read_parquet(parquet_path)
+    tokens = df.columns.tolist()[1:]
+    return tokens
+
+# Load features, labels, and tokens from parquet file
 features, labels = load_data('output/featurized_data.parquet')
+tokens = load_tokens('output/featurized_data.parquet')
 
 # Determine input and output dimensions
 input_dim = features.shape[1]
 output_dim = len(labels.unique())
 
 # Train and save the classifier model and label encoder
-model, label_encoder = train_model(features, labels, input_dim, output_dim)
+model, label_encoder = train_model(features, labels, tokens, input_dim, output_dim)
 
 torch.save(model.state_dict(), classifier_path)
 joblib.dump(label_encoder, 'output/label_encoder.joblib')
