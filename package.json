@@ -1,0 +1,37 @@
+{
+  "name": "hylang",
+  "version": "0.1.0",
+  "description": "programming language detector",
+  "keywords": [
+    "classifier",
+    "detection",
+    "language"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyparam/hylang.git"
+  },
+  "main": "src/hylang.js",
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "types": "src/hylang.d.ts",
+  "scripts": {
+    "coverage": "vitest run --coverage --coverage.include=src",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.8",
+    "@typescript-eslint/eslint-plugin": "7.13.1",
+    "@vitest/coverage-v8": "1.6.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-import": "2.29.1",
+    "eslint-plugin-jsdoc": "48.3.0",
+    "typescript": "5.4.5",
+    "vitest": "1.6.0"
+  }
+}
