@@ -20,6 +20,7 @@
   "types": "src/hylang.d.ts",
   "scripts": {
     "coverage": "vitest run --coverage --coverage.include=src",
+    "demo": "http-server -o",
     "lint": "eslint .",
     "test": "vitest run",
     "typecheck": "tsc"
