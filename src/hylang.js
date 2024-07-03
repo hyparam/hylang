@@ -1,10 +1,10 @@
 // Tokenization and model parameters (weights and biases)
-const tokens = ['function', 'var', 'const', 'let', 'if', 'else', 'for', 'while'] // TODO
-const languages = ['Python', 'JavaScript', 'Java'] // TODO
+const tokens = ['const', 'def', 'public', 'let'] // TODO
+const languages = ['JavaScript', 'Java', 'Python'] // TODO
 const weights = [
-  [0.2, 0.5, -0.3, 0.8],
-  [-0.6, 0.1, 0.3, 0.5],
-  [0.7, -0.2, 0.1, -0.4],
+  [0.8, -0.5, -0.3, 0.8],
+  [-0.6, -0.2, 0.4, -0.5],
+  [-0.7, 0.8, -0.1, -0.4],
 ]
 const biases = [0.1, -0.1, 0.05]
 
