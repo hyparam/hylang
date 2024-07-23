@@ -6,3 +6,16 @@
 ![coverage](https://img.shields.io/badge/Coverage-100-darkred)
 
 A stupidly small and fast programming language detection model.
+
+## Usage
+
+```js
+import { detectLanguage } from 'hylang'
+
+const input = `
+  function square(x) {
+    return x * x
+  }
+`
+console.log(`Predicted language: ${detectLanguage(input)}`)
+```
