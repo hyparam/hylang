@@ -1,5 +1,7 @@
 # HyLang
 
+![HyLang](hylang.jpg)
+
 [![workflow status](https://github.com/hyparam/hylang/actions/workflows/ci.yml/badge.svg)](https://github.com/hyparam/hylang/actions)
 [![mit license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![dependencies](https://img.shields.io/badge/Dependencies-0-blueviolet)](https://www.npmjs.com/package/hylang?activeTab=dependencies)
