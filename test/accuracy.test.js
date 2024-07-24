@@ -33,7 +33,7 @@ async function evaluateModel() {
 
 describe('Language Classification Model', () => {
   it('should achieve accuracy above the specified threshold', async () => {
-    const accuracyThreshold = 0.55
+    const accuracyThreshold = 0.7
     const accuracy = await evaluateModel()
 
     console.log(`Model Accuracy: ${(accuracy * 100).toFixed(2)}%`)
