@@ -60,7 +60,7 @@ describe('detectLanguage', () => {
   })
 
   it('should handle empty input', () => {
-    expect(detectLanguage('')).toBe('javascript')
+    expect(detectLanguage('')).toBe('markdown')
   })
 
   it('should handle input with no specific language features', () => {
@@ -70,6 +70,6 @@ describe('detectLanguage', () => {
       z = x + y
     `
 
-    expect(detectLanguage(genericCode)).toBe('javascript')
+    expect(detectLanguage(genericCode)).toBe('markdown')
   })
 })
