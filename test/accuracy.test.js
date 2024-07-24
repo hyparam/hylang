@@ -27,13 +27,13 @@ async function evaluateModel() {
   const predictions = evalData.map(row => detectLanguage(row[1]))
   const trueLabels = evalData.map(row => row[0])
 
-  const correct = predictions.filter((pred, i) => pred.toLowerCase() === trueLabels[i]).length
+  const correct = predictions.filter((pred, i) => pred?.toLowerCase() === trueLabels[i]).length
   return correct / predictions.length
 }
 
 describe('Language Classification Model', () => {
   it('should achieve accuracy above the specified threshold', async () => {
-    const accuracyThreshold = 0.40
+    const accuracyThreshold = 0.55
     const accuracy = await evaluateModel()
 
     console.log(`Model Accuracy: ${(accuracy * 100).toFixed(2)}%`)
