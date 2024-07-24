@@ -104,7 +104,7 @@
   "languages": [
     "assembly",
     "c",
-    "c-sharp",
+    "csharp",
     "cpp",
     "css",
     "cuda",
@@ -118,7 +118,7 @@
     "markdown",
     "matlab",
     "php",
-    "protocol-buffer",
+    "protobuf",
     "python",
     "r",
     "ruby",

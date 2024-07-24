@@ -17,25 +17,41 @@ function textToFeatures(text) {
 /**
  * Calculate logits for language detection
  * @param {string} text - input text
- * @returns {number[]} logits for each language
+ * @returns {Record<string, number>} logits for each language
  */
 export function detectLanguageLogits(text) {
   const features = textToFeatures(text)
 
-  return weights.map((weightsRow, i) => {
-    return weightsRow.reduce((sum, weight, j) => sum + weight * features[j], biases[i])
+  /** @type {Record<string, number>} */
+  const logits = {}
+  weights.forEach((weightsRow, i) => {
+    const weightedSum = weightsRow.reduce((sum, weight, j) => sum + weight * features[j], biases[i])
+    logits[languages[i]] = weightedSum
   })
+
+  return logits
 }
 
 /**
- * Apply softmax to an array of numbers
- * @param {number[]} arr - input array
- * @returns {number[]} softmax probabilities
+ * Apply softmax to an object of logits
+ * @param {Record<string, number>} logits - input object of logits
+ * @returns {Object} softmax probabilities
  */
-function softmax(arr) {
-  const expArr = arr.map(Math.exp)
-  const sumExpArr = expArr.reduce((sum, exp) => sum + exp, 0)
-  return expArr.map(exp => exp / sumExpArr)
+function softmax(logits) {
+  /** @type {Record<string, number>} */
+  const probabilities = {}
+  let sum = 0
+
+  // Calculate exp of logits and sum
+  for (const lang in logits) {
+    probabilities[lang] = Math.exp(logits[lang])
+    sum += probabilities[lang]
+  }
+  // Normalize to get probabilities
+  for (const lang in probabilities) {
+    probabilities[lang] /= sum
+  }
+  return probabilities
 }
 
 /**
@@ -46,6 +62,9 @@ function softmax(arr) {
 export function detectLanguage(text) {
   const logits = detectLanguageLogits(text)
   const probabilities = softmax(logits)
-  const predictedClass = probabilities.indexOf(Math.max(...probabilities))
-  return languages[predictedClass]
+  const predictedLanguage = Object.entries(probabilities).reduce(
+    (max, [lang, prob]) => prob > max[1] ? [lang, prob] : max,
+    ['', -Infinity],
+  )[0]
+  return predictedLanguage
 }
