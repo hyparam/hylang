@@ -18,7 +18,7 @@ describe('detectLanguage', () => {
       console.log('Sum:', sum)
     `
 
-    expect(detectLanguage(jsCode)).toBe('JavaScript')
+    expect(detectLanguage(jsCode)).toBe('javascript')
   })
 
   it('should detect Python', () => {
@@ -35,7 +35,7 @@ describe('detectLanguage', () => {
       print("Sum:", sum)
     `
 
-    expect(detectLanguage(pythonCode)).toBe('Python')
+    expect(detectLanguage(pythonCode)).toBe('python')
   })
 
   it('should detect Java', () => {
@@ -56,11 +56,11 @@ describe('detectLanguage', () => {
       }
     `
 
-    expect(detectLanguage(javaCode)).toBe('Java')
+    expect(detectLanguage(javaCode)).toBe('java')
   })
 
   it('should handle empty input', () => {
-    expect(detectLanguage('')).toBe('JavaScript')
+    expect(detectLanguage('')).toBe('javascript')
   })
 
   it('should handle input with no specific language features', () => {
@@ -70,6 +70,6 @@ describe('detectLanguage', () => {
       z = x + y
     `
 
-    expect(detectLanguage(genericCode)).toBe('JavaScript')
+    expect(detectLanguage(genericCode)).toBe('javascript')
   })
 })

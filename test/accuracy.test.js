@@ -1,8 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import fs from 'fs/promises'
+import { createReadStream, promises as fs } from 'fs'
 import { parquetRead } from 'hyparquet'
+import { describe, expect, it } from 'vitest'
 import { detectLanguage } from '../src/hylang.js'
-import { createReadStream } from 'fs'
 
 const evalFile = 'language_eval.parquet'
 
@@ -13,11 +12,12 @@ async function evaluateModel() {
     /**
      * @param {number} start - start position
      * @param {number} end - end position
+     * @returns {Promise<ArrayBuffer>}
      */
     async slice(start, end) {
       const readStream = createReadStream(evalFile, { start, end })
       return await readStreamToArrayBuffer(readStream)
-    }
+    },
   }
   /**
    * @type {any[][]}
@@ -35,15 +35,15 @@ describe('Language Classification Model', () => {
   it('should achieve accuracy above the specified threshold', async () => {
     const accuracyThreshold = 0.30
     const accuracy = await evaluateModel()
-    
+
     console.log(`Model Accuracy: ${(accuracy * 100).toFixed(2)}%`)
-    
+
     expect(accuracy).toBeGreaterThan(accuracyThreshold)
   }, 300000) // 5-minute timeout
 })
 
 /**
- * @param {import('hyparquet').ParquetReadOptions} options 
+ * @param {import('hyparquet').ParquetReadOptions} options
  */
 function parquetReadPromise(options) {
   return new Promise((resolve, reject) => {
