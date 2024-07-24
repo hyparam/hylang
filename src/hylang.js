@@ -15,25 +15,37 @@ function textToFeatures(text) {
 }
 
 /**
+ * Calculate logits for language detection
+ * @param {string} text - input text
+ * @returns {number[]} logits for each language
+ */
+export function detectLanguageLogits(text) {
+  const features = textToFeatures(text)
+
+  return weights.map((weightsRow, i) => {
+    return weightsRow.reduce((sum, weight, j) => sum + weight * features[j], biases[i])
+  })
+}
+
+/**
+ * Apply softmax to an array of numbers
+ * @param {number[]} arr - input array
+ * @returns {number[]} softmax probabilities
+ */
+function softmax(arr) {
+  const expArr = arr.map(Math.exp)
+  const sumExpArr = expArr.reduce((sum, exp) => sum + exp, 0)
+  return expArr.map(exp => exp / sumExpArr)
+}
+
+/**
  * Classify the input text based on features
  * @param {string} text - input text
  * @returns {string} predicted programming language
  */
 export function detectLanguage(text) {
-  const features = textToFeatures(text)
-
-  // Calculate the logits for each class
-  const logits = weights.map((weightsRow, i) => {
-    const weightedSum = weightsRow.reduce((sum, weight, j) => sum + weight * features[j], biases[i])
-    return weightedSum
-  })
-
-  // Apply softmax to logits to get probabilities
-  const expLogits = logits.map(logit => Math.exp(logit))
-  const sumExpLogits = expLogits.reduce((sum, expLogit) => sum + expLogit, 0)
-  const probabilities = expLogits.map(expLogit => expLogit / sumExpLogits)
-
-  // Find the class with the highest probability
+  const logits = detectLanguageLogits(text)
+  const probabilities = softmax(logits)
   const predictedClass = probabilities.indexOf(Math.max(...probabilities))
   return languages[predictedClass]
 }
