@@ -21,3 +21,13 @@ const input = `
 `
 console.log(`Predicted language: ${detectLanguage(input)}`)
 ```
+
+## Accuracy
+
+Hylang eval is sampled from the starcoderdata dataset.
+
+Hylang is 30.4kb packed and achieves 74.5% accuracy.
+
+## Implementation
+
+The language detector is implemented as a bag of words model trained on the starcoderdata dataset.
