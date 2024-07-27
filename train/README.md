@@ -1,8 +1,8 @@
 # HyLang Model Training
 
-## create_lite_dataset.py
+## create_dataset.py
 
-Generates a sampled version of starcoderdata with 0.01% of the rows from each language.
+Generates sampled versions of starcoderdata with 0.01% of the rows from each language. Creates a training dataset and an eval dataset.
 
 ## tfidf.py
 
