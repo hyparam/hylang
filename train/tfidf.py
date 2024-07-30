@@ -3,11 +3,9 @@ import pandas as pd
 import pyarrow.parquet as pq
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
-from tqdm import tqdm
 from pathlib import Path
 
-# Directory containing parquet files and output directory
-directory_path = 'starcoderdata-lite/'
+train_file = 'output/train--.parquet'
 output_path = 'output/'
 
 # Create output directory if it doesn't exist
@@ -18,20 +16,15 @@ def custom_code_tokenizer(code):
     token_pattern = re.compile(r'\w+|[{}()\[\];,]')
     return token_pattern.findall(code)
 
-def process_files(directory, output_path):
+def process_file(file_path, output_path):
     vectorizer = TfidfVectorizer(tokenizer=custom_code_tokenizer)
 
-    # List all files
-    all_files = [f for f in Path(directory).glob("**/*.parquet")]
+    # Read the specific parquet file
+    print(f"Reading Parquet file: {file_path}")
+    df = pd.read_parquet(file_path)
 
-    # Collect all documents to compute global TF-IDF
-    documents = []
-    for filename in tqdm(all_files, desc="Processing files", unit="file"):
-        parquet_file = pq.ParquetFile(filename)
-
-        for batch in parquet_file.iter_batches(batch_size=1000, columns=['content']):
-            df = batch.to_pandas()
-            documents.extend(df['content'].tolist())
+    # Extract documents
+    documents = df['content'].tolist()
 
     # Fit TF-IDF vectorizer
     print("Fitting TF-IDF vectorizer...")
@@ -44,15 +37,11 @@ def process_files(directory, output_path):
     score_data = {'Token': feature_names, 'Score': scores}
     df_scores = pd.DataFrame(score_data)
 
-    # Sort the DataFrame by scores in descending order
-    print("Sorting tokens by TF-IDF scores...")
+    # Sort by scores in descending order and save top tokens
     df_scores_sorted = df_scores.sort_values(by='Score', ascending=False)
+    df_scores_sorted.head(2000).to_parquet(os.path.join(output_path, 'top_tokens.parquet'), index=False)
 
-    # Save to a Parquet file
-    # df_scores_sorted.to_parquet(os.path.join(output_path, 'tfidf_scores_sorted.parquet'))
-
-    # Save top 1000 tokens to Parquet file
-    df_scores_sorted.head(1000).to_parquet(os.path.join(output_path, 'top_tokens.parquet'))
+    print(f"Saved top 2000 tokens to {output_path}/top_tokens.parquet")
 
 # Run TF-IDF
-process_files(directory_path, output_path)
+process_file(train_file, output_path)
