@@ -2,7 +2,12 @@
 
 ## create_dataset.py
 
-Generates sampled versions of starcoderdata with 0.01% of the rows from each language. Creates a training dataset and an eval dataset.
+Creates `output/train.parquet` training dataset and `output/eval.parquet` evaluation dataset by sampling from [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata).
+
+| File          | Sample Fraction | Rows    | File Size   |
+|---------------|-----------------|---------|-------------|
+| train.parquet | 0.001           | 157,837 | 237,419,792 |
+| eval.parquet  | 0.0001          | 16,207  | 24,969,691  |
 
 ## tfidf.py
 

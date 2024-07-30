@@ -7,24 +7,30 @@ data_directory = 'starcoderdata/'
 
 # Whitelist of languages to include
 selected_languages = [
-    'assembly', 'c', 'cpp', 'c-sharp', 'css', 'cuda', 'go', 'html', 'java', 'javascript',
-    'json', 'kotlin', 'lua', 'markdown', 'matlab', 'php', 'protocol-buffer', 'python',
+    'assembly', 'c', 'cpp', 'c-sharp', 'css', 'cuda', 'go', 'html', 'java',
+    'javascript', 'json', 'kotlin', 'lua', 'markdown', 'php', 'python',
     'r', 'ruby', 'rust', 'scala', 'shell', 'sql', 'tex', 'typescript', 'yaml'
 ]
 
+# Rename languages to remove special characters
+language_map = {
+    'c-sharp': 'csharp'
+}
+
 def sample_and_combine_data(language, input_files, sample_fraction):
+    renamed_language = language_map.get(language, language)
     sampled_data = []
 
-    for filename in tqdm(input_files, desc=f"Sampling {language}", leave=False):
+    for filename in tqdm(input_files, desc=f"Sampling {renamed_language}", leave=False):
         filepath = os.path.join(data_directory, language, filename)
         parquet_file = pq.ParquetFile(filepath)
 
         # Read and sample data
-        for batch in parquet_file.iter_batches(batch_size=100000):
+        for batch in parquet_file.iter_batches(batch_size=10000):
             df = batch.to_pandas()
             sample_size = max(1, int(len(df) * sample_fraction))
             df_sampled = df.sample(n=sample_size, random_state=1)
-            df_sampled['language'] = language  # Add language column
+            df_sampled['language'] = renamed_language
             sampled_data.append(df_sampled[['language', 'content']])  # Keep only language and content columns
 
     return pd.concat(sampled_data, ignore_index=True) if sampled_data else pd.DataFrame(columns=['language', 'content'])
