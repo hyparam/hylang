@@ -13,9 +13,9 @@ import json
 
 # Paths for data and model storage
 token_parquet_path = 'output/top_tokens.parquet'
-data_directory = 'starcoderdata-lite/'
 classifier_path = 'output/classifier.pth'
 params_path = 'output/params.json'
+features_path = 'output/featurized_data.parquet'
 
 class SimpleLinearNN(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -100,8 +100,8 @@ def load_tokens(parquet_path):
     return tokens
 
 # Load features, labels, and tokens from parquet file
-features, labels = load_data('output/featurized_data.parquet')
-tokens = load_tokens('output/featurized_data.parquet')
+features, labels = load_data(features_path)
+tokens = load_tokens(features_path)
 
 # Determine input and output dimensions
 input_dim = features.shape[1]

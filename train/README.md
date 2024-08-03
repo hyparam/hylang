@@ -9,6 +9,8 @@ Creates `output/train.parquet` training dataset and `output/eval.parquet` evalua
 | train.parquet | 0.002           | 315,542 | 477,595,439 |
 | eval.parquet  | 0.0001          | 16,207  | 24,969,691  |
 
+146m58s
+
 ## tfidf.py
 
 Generates `output/top_tokens.parquet` with the top 1000 tfidf words from all documents.
@@ -24,10 +26,13 @@ Generates `output/featurized_data.parquet` which maps each document to `programm
 
 ## train.py
 
-Trains a single layer linear torch model.
+Trains a single layer linear torch model on the featurized dataset.
+
+2m26s
 
 ## eval.py
 
-return 'python' => 8.16%
-return 'markdown' => 13.32%
-one layer net => 91.45%
+return 'javascript' => 12.43%
+one layer net => 91.87%
+
+1m32s
