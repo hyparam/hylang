@@ -14,11 +14,13 @@ Creates `output/train.parquet` training dataset and `output/eval.parquet` evalua
 Generates `output/top_tokens.parquet` with the top 1000 tfidf words from all documents.
 Uses a custom tokenizer to get code-like tokens including punctuation `{`, `}`, `;`, etc.
 
-97m58s
+1m4s
 
 ## featurize.py
 
 Generates `output/featurized_data.parquet` which maps each document to `programming_language` and 1000 binary features for presence of each of the top 1000 tokens.
+
+0m44s
 
 ## train.py
 

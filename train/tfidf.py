@@ -5,7 +5,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from pathlib import Path
 
-train_file = 'output/train--.parquet'
+train_file = 'output/train.parquet'
 output_path = 'output/'
 
 # Create output directory if it doesn't exist
