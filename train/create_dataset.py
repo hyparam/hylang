@@ -59,6 +59,6 @@ def create_dataset(data_directory, output_file, sample_fraction):
     print(f"Saved {len(combined_df)} rows to {output_file}")
 
 # Create the training set
-create_dataset(data_directory, 'output/train.parquet', 0.001)
+create_dataset(data_directory, 'output/train.parquet', 0.002)
 # Create the evaluation set
 create_dataset(data_directory, 'output/eval.parquet', 0.0001)
