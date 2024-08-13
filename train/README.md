@@ -30,6 +30,12 @@ Trains a single layer linear torch model on the featurized dataset.
 
 2m26s
 
+## reduce.py
+
+Reduce the number of features from 1000 to 100 tokens.
+
+2s
+
 ## eval.py
 
 return 'javascript' => 12.43%

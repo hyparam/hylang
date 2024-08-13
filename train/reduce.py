@@ -5,7 +5,7 @@ import numpy as np
 # Paths for model storage
 classifier_path = 'output/classifier.pth'
 params_path = 'output/params.json'
-params_lite_path = '../src/params.json'
+reduced_model_path = '../output/reduced_model.pth'
 
 class SimpleLinearNN(torch.nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -36,29 +36,36 @@ def load_model_and_select_features(n_features):
     
     return model, params, top_feature_indices, top_feature_names
 
-def create_lite_params(model, params, top_feature_indices, top_feature_names):
-    lite_params = {
-        'tokens': top_feature_names,
-        'languages': params['languages'],
-        'weights': model.linear.weight.data.numpy()[:, top_feature_indices].tolist(),
-        'biases': model.linear.bias.data.numpy().tolist()
-    }
-    return lite_params
+def create_reduced_model(original_model, top_feature_indices):
+    n_features = len(top_feature_indices)
+    output_dim = original_model.linear.out_features
 
-def save_lite_params(lite_params):
-    with open(params_lite_path, 'w') as json_file:
-        json.dump(lite_params, json_file, indent=2)
+    reduced_model = SimpleLinearNN(n_features, output_dim)
+    
+    # Copy weights and biases for selected features
+    reduced_model.linear.weight.data = original_model.linear.weight.data[:, top_feature_indices].clone()
+    reduced_model.linear.bias.data = original_model.linear.bias.data.clone()
+
+    return reduced_model
+
+def save_reduced_model(reduced_model, top_feature_names, params):
+    model_dict = {
+        'state_dict': reduced_model.state_dict(),
+        'top_features': top_feature_names,
+        'languages': params['languages']
+    }
+    torch.save(model_dict, reduced_model_path)
 
 def main():
     n_features = 100
     model, params, top_feature_indices, top_feature_names = load_model_and_select_features(n_features)
-    lite_params = create_lite_params(model, params, top_feature_indices, top_feature_names)
-    save_lite_params(lite_params)
+    reduced_model = create_reduced_model(model, top_feature_indices)
+    save_reduced_model(reduced_model, top_feature_names, params)
     
     print(f"Top {n_features} features:")
     for i, feature in enumerate(top_feature_names, 1):
         print(f"{i}. {feature}")
-    print(f"\nReduced model parameters saved to {params_lite_path}")
+    print(f"\nReduced model saved to {reduced_model_path}")
 
 if __name__ == "__main__":
     main()

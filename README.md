@@ -31,3 +31,5 @@ Hylang is 30.4kb packed and achieves 74.5% accuracy.
 ## Implementation
 
 The language detector is implemented as a bag of words model trained on the starcoderdata dataset.
+
+Training is done in python with torch. Model weights are exported to `params.json` so they can be used in javascript.
