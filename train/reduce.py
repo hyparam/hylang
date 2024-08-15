@@ -3,9 +3,10 @@ import json
 import numpy as np
 
 # Paths for model storage
-classifier_path = 'output/classifier.pth'
-params_path = 'output/params.json'
-reduced_model_path = '../output/reduced_model.pth'
+classifier_path = 'output/model-large/classifier.pth'
+params_path = 'output/model-large/params.json'
+params_lite_path = '../src/params.json'
+reduced_model_path = 'output/model-small/reduced_model.pth'
 
 class SimpleLinearNN(torch.nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -48,7 +49,18 @@ def create_reduced_model(original_model, top_feature_indices):
 
     return reduced_model
 
-def save_reduced_model(reduced_model, top_feature_names, params):
+def save_reduced_model(reduced_model, top_feature_names, top_feature_indices, params):
+    # Save weights, biases, tokens, and languages to JSON
+    lite_params = {
+        'tokens': top_feature_names,
+        'languages': params['languages'],
+        'weights': reduced_model.linear.weight.detach().cpu().numpy().tolist(),
+        'biases': reduced_model.linear.bias.detach().cpu().numpy().tolist(),
+    }
+    with open(params_lite_path, 'w') as json_file:
+        json.dump(lite_params, json_file, indent=2)
+
+    # Save torch model
     model_dict = {
         'state_dict': reduced_model.state_dict(),
         'top_features': top_feature_names,
@@ -60,7 +72,7 @@ def main():
     n_features = 100
     model, params, top_feature_indices, top_feature_names = load_model_and_select_features(n_features)
     reduced_model = create_reduced_model(model, top_feature_indices)
-    save_reduced_model(reduced_model, top_feature_names, params)
+    save_reduced_model(reduced_model, top_feature_names, top_feature_indices, params)
     
     print(f"Top {n_features} features:")
     for i, feature in enumerate(top_feature_names, 1):

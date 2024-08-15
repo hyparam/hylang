@@ -1,21 +1,21 @@
 import pandas as pd
+import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
-from tqdm import tqdm
 from sklearn.feature_extraction.text import CountVectorizer
 
 # Paths
-token_parquet_path = 'output/top_tokens.parquet'
-train_parquet_path = 'output/train.parquet'
-output_path = 'output/featurized_data.parquet'
+train_path = 'output/data/train.parquet'
+token_path = 'output/model-large/tokens.jsonl'
+output_path = 'output/model-large/featurized_data.parquet'
 
-def load_top_tfidf_words(tfidf_parquet_path, top_n=1000):
-    df_tfidf = pd.read_parquet(tfidf_parquet_path)
-    top_words = df_tfidf.nlargest(top_n, 'Score')['Token'].tolist()
-    return top_words
+def load_tokens(token_path):
+    tokens_df = pd.read_json(token_path, lines=True)
+    return tokens_df['Token'].tolist()
 
-def create_feature_matrix(train_parquet_path, top_words):
-    vectorizer = CountVectorizer(vocabulary=top_words, binary=True)
+def create_feature_matrix(train_parquet_path, tokens):
+    print(f"Creating feature matrix from {len(tokens)} tokens...")
+    vectorizer = CountVectorizer(vocabulary=tokens, binary=True)
     
     # Read the train.parquet file
     df = pd.read_parquet(train_parquet_path)
@@ -24,7 +24,7 @@ def create_feature_matrix(train_parquet_path, top_words):
     features = vectorizer.transform(df['content']).toarray()
     
     # Create DataFrame with features
-    feature_df = pd.DataFrame(features, columns=top_words, index=df.index)
+    feature_df = pd.DataFrame(features, columns=tokens, index=df.index)
     
     # Rename 'language' column to 'programming_language' to fix conflict with feature name
     df = df.rename(columns={'language': 'programming_language'})
@@ -37,7 +37,7 @@ def create_feature_matrix(train_parquet_path, top_words):
     pq.write_table(table, output_path, compression='snappy')
 
 # Load top TF-IDF words and create feature matrix
-top_words = load_top_tfidf_words(token_parquet_path)
-create_feature_matrix(train_parquet_path, top_words)
+tokens = load_tokens(token_path)
+create_feature_matrix(train_path, tokens)
 
 print(f"Featurized data saved to {output_path}")

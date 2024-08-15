@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import joblib
 import torch
@@ -7,15 +6,13 @@ import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
-import pyarrow.parquet as pq
-from tqdm import tqdm
 import json
 
 # Paths for data and model storage
-token_parquet_path = 'output/top_tokens.parquet'
-classifier_path = 'output/classifier.pth'
-params_path = 'output/params.json'
-features_path = 'output/featurized_data.parquet'
+token_parquet_path = 'output/model-large/tokens.json'
+classifier_path = 'output/model-large/classifier.pth'
+params_path = 'output/model-large/params.json'
+features_path = 'output/model-large/featurized_data.parquet'
 
 class SimpleLinearNN(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -111,4 +108,4 @@ output_dim = len(labels.unique())
 model, label_encoder = train_model(features, labels, tokens, input_dim, output_dim)
 
 torch.save(model.state_dict(), classifier_path)
-joblib.dump(label_encoder, 'output/label_encoder.joblib')
+joblib.dump(label_encoder, 'output/model-large/label_encoder.joblib')

@@ -1,27 +1,27 @@
 import os
 import pandas as pd
-import pyarrow.parquet as pq
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from pathlib import Path
 
-train_file = 'output/train.parquet'
-output_path = 'output/'
+train_file = 'output/data/train.parquet'
+token_file = 'output/model-large/tokens.jsonl'
+token_count = 1000
 
-# Create output directory if it doesn't exist
-Path(output_path).mkdir(parents=True, exist_ok=True)
+# Create output directory
+Path(token_file).parent.mkdir(parents=True, exist_ok=True)
 
 def custom_code_tokenizer(code):
     # Define a regular expression to match code tokens
     token_pattern = re.compile(r'\w+|[{}()\[\];,]')
     return token_pattern.findall(code)
 
-def process_file(file_path, output_path):
+def process_file(train_file, token_file):
     vectorizer = TfidfVectorizer(tokenizer=custom_code_tokenizer)
 
     # Read the specific parquet file
-    print(f"Reading Parquet file: {file_path}")
-    df = pd.read_parquet(file_path)
+    print(f"Reading Parquet file: {train_file}")
+    df = pd.read_parquet(train_file)
 
     # Extract documents
     documents = df['content'].tolist()
@@ -39,9 +39,9 @@ def process_file(file_path, output_path):
 
     # Sort by scores in descending order and save top tokens
     df_scores_sorted = df_scores.sort_values(by='Score', ascending=False)
-    df_scores_sorted.head(2000).to_parquet(os.path.join(output_path, 'top_tokens.parquet'), index=False)
+    df_scores_sorted.head(token_count).to_json(token_file, orient='records', lines=True)
 
-    print(f"Saved top 2000 tokens to {output_path}/top_tokens.parquet")
+    print(f"Saved top {token_count} tokens to {token_file}")
 
 # Run TF-IDF
-process_file(train_file, output_path)
+process_file(train_file, token_file)

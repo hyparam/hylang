@@ -1,5 +1,4 @@
 import pandas as pd
-import pyarrow.parquet as pq
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
 import joblib
@@ -8,10 +7,10 @@ import torch.nn as nn
 from sklearn.feature_extraction.text import CountVectorizer
 
 # Paths for data and model storage
-classifier_path = 'output/classifier.pth'
-label_encoder_path = 'output/label_encoder.joblib'
-token_parquet_path = 'output/top_tokens.parquet'
-eval_parquet_path = 'output/eval.parquet'
+classifier_path = 'output/model-large/classifier.pth'
+label_encoder_path = 'output/model-large/label_encoder.joblib'
+token_path = 'output/model-large/tokens.jsonl'
+eval_parquet_path = 'output/data/eval.parquet'
 
 # Load the label encoder
 label_encoder = joblib.load(label_encoder_path)
@@ -27,17 +26,17 @@ class SimpleLinearNN(nn.Module):
     def forward(self, x):
         return self.linear(x)
 
+# Load the top TF-IDF words to initialize the vectorizer
+df_tokens = pd.read_json(token_path, lines=True)
+tokens = df_tokens['Token'].tolist()
+vectorizer = CountVectorizer(vocabulary=tokens, binary=True)
+
 # Load the model
-input_dim = 1000  # Assuming 1000 TF-IDF features were used
+input_dim = len(tokens)
 output_dim = len(label_encoder.classes_)
 model = SimpleLinearNN(input_dim, output_dim)
 model.load_state_dict(torch.load(classifier_path))
 model.eval()  # Set the model to evaluation mode
-
-# Load the top TF-IDF words to initialize the vectorizer
-df_tfidf = pd.read_parquet(token_parquet_path)
-top_words = df_tfidf.nlargest(1000, 'Score')['Token'].tolist()
-vectorizer = CountVectorizer(vocabulary=top_words, binary=True)
 
 def model_inference(input_text):
     """
