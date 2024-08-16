@@ -11,6 +11,7 @@ classifier_path = 'output/model-large/classifier.pth'
 label_encoder_path = 'output/model-large/label_encoder.joblib'
 token_path = 'output/model-large/tokens.jsonl'
 eval_parquet_path = 'output/data/eval.parquet'
+output_parquet_path = 'output/data/eval_results.parquet'
 
 # Load the label encoder
 label_encoder = joblib.load(label_encoder_path)
@@ -49,9 +50,10 @@ def model_inference(input_text):
         predicted_label = label_encoder.inverse_transform(predicted.cpu().numpy())[0]
     return predicted_label
 
-def evaluate_model(eval_parquet_path):
+def evaluate_model(eval_parquet_path, output_parquet_path):
     all_predictions = []
     all_true_labels = []
+    all_inputs = []
 
     # Read the eval.parquet file
     df = pd.read_parquet(eval_parquet_path)
@@ -62,13 +64,27 @@ def evaluate_model(eval_parquet_path):
         batch = df.iloc[i:i+batch_size]
         predictions = [model_inference(text) for text in batch['content']]
         true_labels = batch['language'].tolist()
+        inputs = batch['content'].tolist()
 
         all_predictions.extend(predictions)
         all_true_labels.extend(true_labels)
+        all_inputs.extend(inputs)
 
-    # Calculate and print the overall accuracy
+    # Calculate the overall accuracy
     accuracy = accuracy_score(all_true_labels, all_predictions)
     print(f"Overall Accuracy: {accuracy:.2%}")
 
-# Evaluate the model
-evaluate_model(eval_parquet_path)
+    # Create a DataFrame with the results
+    results_df = pd.DataFrame({
+        'input': all_inputs,
+        'predicted_output': all_predictions,
+        'gold_output': all_true_labels,
+        'score': [1 if pred == true else 0 for pred, true in zip(all_predictions, all_true_labels)]
+    })
+
+    # Save the results to a parquet file
+    results_df.to_parquet(output_parquet_path, index=False)
+    print(f"Results saved to {output_parquet_path}")
+
+# Evaluate the model and save results
+evaluate_model(eval_parquet_path, output_parquet_path)
