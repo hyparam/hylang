@@ -1,9 +1,13 @@
 import os
+from pathlib import Path
 import pandas as pd
 import pyarrow.parquet as pq
 from tqdm import tqdm
 
 data_directory = 'starcoderdata/'
+
+# Create output directory
+Path('output/data').mkdir(parents=True, exist_ok=True)
 
 # Whitelist of languages to include
 selected_languages = [
@@ -14,7 +18,8 @@ selected_languages = [
 
 # Rename languages to remove special characters
 language_map = {
-    'c-sharp': 'csharp'
+    'c-sharp': 'csharp',
+    'c': 'cpp',
 }
 
 def sample_and_combine_data(language, input_files, sample_fraction):

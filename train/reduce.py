@@ -1,3 +1,4 @@
+from pathlib import Path
 import torch
 import json
 import numpy as np
@@ -7,6 +8,9 @@ classifier_path = 'output/model-large/classifier.pth'
 params_path = 'output/model-large/params.json'
 params_lite_path = '../src/params.json'
 reduced_model_path = 'output/model-small/reduced_model.pth'
+
+# Create output directory
+Path('output/model-small').mkdir(parents=True, exist_ok=True)
 
 class SimpleLinearNN(torch.nn.Module):
     def __init__(self, input_dim, output_dim):

@@ -28,7 +28,8 @@ Generates `output/model-large/featurized_data.parquet` which maps each document 
 
 Trains a single layer linear torch model on the featurized dataset for 40 epochs.
 
-6m30s
+Loss: 0.3577
+4m30s
 
 ## reduce.py
 
@@ -39,7 +40,7 @@ Reduce the number of features from 1000 to 100 tokens.
 ## eval.py
 
 return 'javascript' => 12.43%
-1000-tokens-one-layer-net => 91.87%
-1000-tokens-one-layer-net-reduced-100 => 74.30%
+1000-tokens-one-layer-net => 92.83%
+1000-tokens-one-layer-net-reduced-100 => 72.70%
 
 0m34s
