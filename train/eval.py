@@ -5,6 +5,7 @@ import joblib
 import torch
 import torch.nn as nn
 from sklearn.feature_extraction.text import CountVectorizer
+import torch.nn.functional as F
 
 # Paths for data and model storage
 classifier_path = 'output/model-large/classifier.pth'
@@ -42,18 +43,22 @@ model.eval()  # Set the model to evaluation mode
 def model_inference(input_text):
     """
     Language classification model that predicts the programming language based on the input text.
+    Returns the predicted label and confidence score.
     """
     features = vectorizer.transform([input_text]).toarray()
     with torch.no_grad():
         outputs = model(torch.tensor(features, dtype=torch.float32))
-        _, predicted = torch.max(outputs, 1)
+        probabilities = F.softmax(outputs, dim=1)
+        confidence, predicted = torch.max(probabilities, 1)
         predicted_label = label_encoder.inverse_transform(predicted.cpu().numpy())[0]
-    return predicted_label
+        confidence_score = confidence.item()
+    return predicted_label, confidence_score
 
 def evaluate_model(eval_parquet_path, output_parquet_path):
     all_predictions = []
     all_true_labels = []
     all_inputs = []
+    all_confidences = []
 
     # Read the eval.parquet file
     df = pd.read_parquet(eval_parquet_path)
@@ -62,13 +67,15 @@ def evaluate_model(eval_parquet_path, output_parquet_path):
     batch_size = 1000
     for i in tqdm(range(0, len(df), batch_size), desc="Processing batches"):
         batch = df.iloc[i:i+batch_size]
-        predictions = [model_inference(text) for text in batch['content']]
+        predictions_and_confidences = [model_inference(text) for text in batch['content']]
+        predictions, confidences = zip(*predictions_and_confidences)
         true_labels = batch['language'].tolist()
         inputs = batch['content'].tolist()
 
         all_predictions.extend(predictions)
         all_true_labels.extend(true_labels)
         all_inputs.extend(inputs)
+        all_confidences.extend(confidences)
 
     # Calculate the overall accuracy
     accuracy = accuracy_score(all_true_labels, all_predictions)
@@ -77,8 +84,9 @@ def evaluate_model(eval_parquet_path, output_parquet_path):
     # Create a DataFrame with the results
     results_df = pd.DataFrame({
         'input': all_inputs,
-        'predicted_output': all_predictions,
         'gold_output': all_true_labels,
+        'predicted_output': all_predictions,
+        'confidence': all_confidences,
         'score': [1 if pred == true else 0 for pred, true in zip(all_predictions, all_true_labels)]
     })
 
