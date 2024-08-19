@@ -16,7 +16,7 @@ selected_languages = [
     'r', 'ruby', 'rust', 'scala', 'shell', 'sql', 'tex', 'typescript', 'yaml'
 ]
 
-# Rename languages to remove special characters
+# Rename languages to remove special characters and combine similar languages
 language_map = {
     'c-sharp': 'csharp',
     'c': 'cpp',

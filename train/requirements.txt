@@ -1,0 +1,6 @@
+pandas==2.2.2
+scikit-learn==1.5.1
+torch==2.4.0
+joblib==1.4.2
+pyarrow==17.0.0
+tqdm==4.66.5

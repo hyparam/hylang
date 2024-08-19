@@ -1,5 +1,17 @@
 # HyLang Model Training
 
+## Environment setup
+
+Setup your python environment, and download starcoderdata from hugging face (311 GB).
+
+```bash
+python -m venv .env-train
+source .env-train/bin/activate
+pip install -r requirements.txt
+git lfs install
+git clone git@hf.co:datasets/bigcode/starcoderdata
+```
+
 ## create_dataset.py
 
 Creates `output/data/train.parquet` training dataset and `output/data/eval.parquet` evaluation dataset by sampling from [starcoderdata](https://huggingface.co/datasets/bigcode/starcoderdata).
